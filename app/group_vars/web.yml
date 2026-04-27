@@ -1,0 +1,8 @@
+app_repo: "https://github.com/pravinmishraaws/theepicbook.git"
+app_dest: "/home/azureuser/theepicbook"
+app_user: "azureuser"
+
+# Database Configuration
+db_host: "epicbook-db-7eb8df93.mysql.database.azure.com"
+db_user: "dbadmin"
+db_name: "bookstore"

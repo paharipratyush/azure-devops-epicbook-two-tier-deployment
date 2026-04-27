@@ -1,0 +1,27 @@
+trigger:
+  - main
+
+pool:
+  name: 'SelfHostedPool'
+
+steps:
+  - task: DownloadSecureFile@1
+    name: sshKey
+    displayName: 'Download Secure SSH Key'
+    inputs:
+      secureFile: 'id_ed25519'
+
+  - script: |
+      echo "===== SETTING SSH KEY PERMISSIONS ====="
+      chmod 400 $(sshKey.secureFilePath)
+      
+      echo "===== DEPLOYING APPLICATION WITH ANSIBLE ====="
+      export ANSIBLE_HOST_KEY_CHECKING=False
+      
+      # We export the password to the environment so Ansible's lookup('env', 'DB_PASSWORD') can securely grab it
+      export DB_PASSWORD=$DB_SECRET_VAR 
+      
+      ansible-playbook -i inventory.ini site.yml --extra-vars "db_password=$DB_SECRET_VAR"
+    displayName: 'Configure Servers and Deploy EpicBook'
+    env:
+      DB_SECRET_VAR: $(DB_PASSWORD) # Maps the secret UI variable securely into the script environment

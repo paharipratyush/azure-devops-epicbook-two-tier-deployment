@@ -1,0 +1,58 @@
+---
+- name: Install Node.js and npm
+  ansible.builtin.apt:
+    name:
+      - nodejs
+      - npm
+    state: present
+
+- name: Install PM2 globally
+  community.general.npm:
+    name: pm2
+    global: yes
+
+- name: Clone EpicBook repository
+  ansible.builtin.git:
+    repo: "{{ app_repo }}"
+    dest: "{{ app_dest }}"
+    update: yes
+    force: yes
+  become_user: "{{ app_user }}"
+
+- name: Install Node dependencies
+  community.general.npm:
+    path: "{{ app_dest }}"
+  become_user: "{{ app_user }}"
+
+- name: Inject database configuration
+  ansible.builtin.template:
+    src: config.json.j2
+    dest: "{{ app_dest }}/config/config.json"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+
+- name: Ensure logical database exists
+  ansible.builtin.command: >
+    mysql -h {{ db_host }} -u {{ db_user }} -p"{{ db_password }}" -e "CREATE DATABASE IF NOT EXISTS {{ db_name }};"
+    
+- name: Check if database is already seeded
+  ansible.builtin.command: >
+    mysql -h {{ db_host }} -u {{ db_user }} -p"{{ db_password }}" -e "SELECT 1 FROM {{ db_name }}.Books LIMIT 1;"
+  register: db_seeded
+  ignore_errors: true
+  changed_when: false
+
+- name: Seed Database
+  ansible.builtin.shell: |
+    mysql -h {{ db_host }} -u {{ db_user }} -p"{{ db_password }}" {{ db_name }} < db/BuyTheBook_Schema.sql
+    mysql -h {{ db_host }} -u {{ db_user }} -p"{{ db_password }}" {{ db_name }} < db/author_seed.sql
+    mysql -h {{ db_host }} -u {{ db_user }} -p"{{ db_password }}" {{ db_name }} < db/books_seed.sql
+  args:
+    chdir: "{{ app_dest }}"
+  when: db_seeded.rc != 0
+
+- name: Start EpicBook with PM2
+  ansible.builtin.shell: pm2 restart server.js || pm2 start server.js && pm2 save
+  args:
+    chdir: "{{ app_dest }}"
+  become_user: "{{ app_user }}"

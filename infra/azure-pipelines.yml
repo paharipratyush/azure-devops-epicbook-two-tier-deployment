@@ -1,0 +1,27 @@
+trigger:
+  - main
+
+pool:
+  name: 'SelfHostedPool'
+
+variables:
+  serviceConnection: 'azure-spn-connection'
+
+steps:
+  - task: AzureCLI@2
+    displayName: 'Terraform Init and Apply'
+    inputs:
+      azureSubscription: '$(serviceConnection)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        echo "===== INITIALIZING TERRAFORM ====="
+        terraform init
+
+        echo "===== RUNNING TERRAFORM APPLY ====="
+        terraform apply -auto-approve
+        
+        echo "===== TERRAFORM OUTPUTS ====="
+        terraform output
+    env:
+      TF_VAR_db_password: $(DB_PASSWORD)
