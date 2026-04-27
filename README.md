@@ -123,7 +123,7 @@ Microsoft restricts free hosted agents. To run these pipelines, you need to turn
 
 **2. Provide Terraform the Public Key:**
 * Run `cat ~/.ssh/id_ed25519.pub` and copy the entire output string (it will look like ssh-ed25519 AAAA...).
-* In Azure DevOps, go to **Repos** -> **Files** -> open `infra/variables.tf` folder.
+* In Azure DevOps, go to **Repos** -> **Files** -> open `infra/variables.tf` file.
 * Click **Edit**. Find the variable `ssh_public_key` (or similar).
 * Paste your copied key string directly into the default value so it looks exactly like this:
   ```
