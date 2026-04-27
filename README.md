@@ -89,7 +89,7 @@ Microsoft restricts free hosted agents. To run these pipelines, you need to turn
   - Enter agent pool name: `SelfHostedPool`.
   - Press Enter for the rest of the defaults.
 
-* Finally, run ./run.sh. Leave this terminal window open! Your computer is now waiting for pipeline jobs.
+* Finally, run `./run.sh`. Leave this terminal window open! Your computer is now waiting for pipeline jobs.
 
 ## 🔐 Phase 3: The Azure Foundation & Authentication
 
