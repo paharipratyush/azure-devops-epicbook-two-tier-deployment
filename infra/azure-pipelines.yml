@@ -1,5 +1,10 @@
 trigger:
-  - main
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - infra/*
 
 pool:
   name: 'SelfHostedPool'
@@ -20,7 +25,7 @@ steps:
 
         echo "===== RUNNING TERRAFORM APPLY ====="
         terraform apply -auto-approve
-        
+
         echo "===== TERRAFORM OUTPUTS ====="
         terraform output
     env:

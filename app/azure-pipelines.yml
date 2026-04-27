@@ -1,5 +1,10 @@
 trigger:
-  - main
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - app/*
 
 pool:
   name: 'SelfHostedPool'
@@ -14,13 +19,13 @@ steps:
   - script: |
       echo "===== SETTING SSH KEY PERMISSIONS ====="
       chmod 400 $(sshKey.secureFilePath)
-      
+
       echo "===== DEPLOYING APPLICATION WITH ANSIBLE ====="
       export ANSIBLE_HOST_KEY_CHECKING=False
-      
+
       # We export the password to the environment so Ansible's lookup('env', 'DB_PASSWORD') can securely grab it
-      export DB_PASSWORD=$DB_SECRET_VAR 
-      
+      export DB_PASSWORD=$DB_SECRET_VAR
+
       ansible-playbook -i inventory.ini site.yml --extra-vars "db_password=$DB_SECRET_VAR"
     displayName: 'Configure Servers and Deploy EpicBook'
     env:
